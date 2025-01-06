@@ -1,0 +1,77 @@
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: user
+    password: password
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+
+  data:
+    redis:
+      port: 6379
+      host: localhost
+      channels:
+        calculations_channel:
+          name: calculations_channel
+        comment_channel:
+          name: comment_channel
+        follower_channel:
+          name: follower_channel
+        like_channel:
+          name: like_channel
+
+  task:
+    execution:
+      pool:
+        core-size: 5
+        max-size: 10
+        queue-capacity: 10000
+        keep-alive: 60
+        thread-name-prefix: "AdRemoverExecutor"
+
+
+
+server:
+  port: 8081
+
+logging:
+  level:
+    root: info
+
+post:
+  publisher:
+    scheduler:
+      cron: "0 0/1 * 1/1 * ?" # every minute
+
+ad:
+  ad-remover:
+    scheduler:
+      cron: "0 0/1 * 1/1 * ?" # every minute
+  ad-deleted:
+    scheduler:
+      cron: "0 0 0 * * *" # once a day
+      batchSize:
+        size: 100
+
+
+
+user-service:
+  host: localhost
+  port: 8080
+project-service:
+  host: localhost
+  port: 8082
+payment-service:
+  host: localhost
+  port: 9080
