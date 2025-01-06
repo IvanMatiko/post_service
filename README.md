@@ -1,107 +1,66 @@
-# Service Template
+# Post Service
 
-Стандартный шаблон проекта на SpringBoot
+## Overview
+Post Service is a backend application for managing posts within a system. It provides comprehensive APIs for creating, reading, updating, and deleting posts, along with managing associated metadata such as tags, categories, and authors.
 
-# Использованные технологии
+## Features
+- **Post Management:** Create, retrieve, update, and delete posts.
+- **Tag and Category Association:** Link posts with relevant tags and categories.
+- **Author Integration:** Manage authors and associate them with posts.
+- **Pagination and Filtering:** Efficiently retrieve posts with support for pagination and advanced filters.
+- **Swagger Documentation:** Automatically generated API documentation for developers.
 
-* [Spring Boot](https://spring.io/projects/spring-boot) – как основной фрэймворк
-* [PostgreSQL](https://www.postgresql.org/) – как основная реляционная база данных
-* [Redis](https://redis.io/) – как кэш и очередь сообщений через pub/sub
-* [testcontainers](https://testcontainers.com/) – для изолированного тестирования с базой данных
-* [Liquibase](https://www.liquibase.org/) – для ведения миграций схемы БД
-* [Gradle](https://gradle.org/) – как система сборки приложения
+## Getting Started
 
-# База данных
+### Prerequisites
+- Java 17
+- Docker (optional for containerized deployment)
+- Gradle
 
-* База поднимается в отдельном сервисе [infra](../infra)
-* Redis поднимается в единственном инстансе тоже в [infra](../infra)
-* Liquibase сам накатывает нужные миграции на голый PostgreSql при старте приложения
-* В тестах используется [testcontainers](https://testcontainers.com/), в котором тоже запускается отдельный инстанс
-  postgres
-* В коде продемонстрирована работа как с JdbcTemplate, так и с JPA (Hibernate)
+### Steps
+1. Clone the repository:
+   git clone https://github.com/IvanMatiko/post_service.git
+   cd post_service
+   
+ 2. Build the project:
+   ./gradlew build
 
-# Как начать разработку начиная с шаблона?
+ 3. Run the application:
+    ./gradlew bootRun
+ 
+ 4. Optional (Build and run with Docker):
+    docker build -t post-service .
+    docker run -p 8080:8080 post-service
 
-1. Сначала нужно склонировать этот репозиторий
 
-```shell
-git clone https://github.com/FAANG-School/ServiceTemplate
-```
+   # API Endpoints
+GET /posts: Retrieve a list of posts.
 
-2. Далее удаляем служебную директорию для git
+POST /posts: Create a new post.
 
-```shell
-# Переходим в корневую директорию проекта
-cd ServiceTemplate
-rm -rf .git
-```
+GET /posts/{id}: Retrieve details of a specific post.
 
-3. Далее нужно создать совершенно пустой репозиторий в github/gitlab
+PUT /posts/{id}: Update an existing post.
 
-4. Создаём новый репозиторий локально и коммитим изменения
+DELETE /posts/{id}: Delete a post by ID.
 
-```shell
-git init
-git remote add origin <link_to_repo>
-git add .
-git commit -m "<msg>"
-```
+For detailed API specifications, refer to the Swagger documentation.
 
-Готово, можно начинать работу!
+# Technologies Used
+Java: Primary programming language.
 
-# Как запустить локально?
+Spring Boot: Framework for building the backend service.
 
-Сначала нужно развернуть базу данных из директории [infra](../infra)
+Postgres: DataBase.
 
-Далее собрать gradle проект
+Redis: cache and message's broker.
 
-```shell
-# Нужно запустить из корневой директории, где лежит build.gradle.kts
-gradle build
-```
+Gradle: Build tool for project automation.
 
-Запустить jar'ник
+Swagger: API documentation tool.
 
-```shell
-java -jar build/libs/ServiceTemplate-1.0.jar
-```
+Docker: For building and deploying the service in a containerized environment.
+   
+    
 
-Но легче всё это делать через IDE
-
-# Код
-
-RESTful приложения калькулятор с единственным endpoint'ом, который принимает 2 числа и выдает результаты их сложения,
-вычитаяни, умножения и деления
-
-* Обычная трёхслойная
-  архитектура – [Controller](src/main/java/faang/school/postservice/controller), [Service](src/main/java/faang/school/postservice/service), [Repository](src/main/java/faang/school/postservice/repository)
-* Слой Repository реализован и на jdbcTemplate, и на JPA (Hibernate)
-* Написан [GlobalExceptionHandler](src/main/java/faang/school/postservice/controller/GlobalExceptionHandler.java)
-  который умеет возвращать ошибки в формате `{"code":"CODE", "message": "message"}`
-* Используется TTL кэширование вычислений
-  в [CalculationTtlCacheService](src/main/java/faang/school/postservice/service/cache/CalculationTtlCacheService.java)
-* Реализован простой Messaging через [Redis pub/sub](https://redis.io/docs/manual/pubsub/)
-  * [Конфигурация](src/main/java/faang/school/postservice/config/RedisConfig.java) –
-    сетапится [RedisTemplate](https://docs.spring.io/spring-data/redis/docs/current/api/org/springframework/data/redis/core/RedisTemplate.html) –
-    класс, для удобной работы с Redis силами Spring
-  * [Отправитель](src/main/java/faang/school/postservice/service/messaging/RedisCalculationPublisher.java) – генерит
-    рандомные запросы и отправляет в очередь
-  * [Получатель](src/main/java/faang/school/postservice/service/messaging/RedisCalculationSubscriber.java) –
-    получает запросы и отправляет задачи асинхронно выполняться
-    в [воркер](src/main/java/faang/school/postservice/service/worker/CalculationWorker.java)
-
-# Тесты
-
-Написаны только для единственного REST endpoint'а
-* SpringBootTest
-* MockMvc
-* Testcontainers
-* AssertJ
-* JUnit5
-* Parameterized tests
-
-# TODO
-
-* Dockerfile, который подключается к сети запущенной postgres в docker-compose
-* Redis connectivity
-* ...
+ 
